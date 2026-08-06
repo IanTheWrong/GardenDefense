@@ -8,6 +8,9 @@
     "ServerScriptService": {
       "$path": "src/Server"
     },
+    "StarterGui": {
+      "$path": "src/StarterGui"
+    },
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "$path": "src/Client"
