@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
-local RS = game:GetService("RunService")
-local SS = game:GetService("ServerStorage")
+local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage") -- unused
 local HttpService = game:GetService("HttpService")
 
 local Knit = require(game.ReplicatedStorage.Game.Knit.Knit)
@@ -16,23 +16,23 @@ local DataService = Knit.CreateService {
 }
 
 DataService.Profiles = {}
-local PlayerStore = ProfileStore.New(RS:IsStudio() and "Test" or "Live", Template)
+local PlayerStore = ProfileStore.New(RunService:IsStudio() and "Test" or "Live", Template) -- creates the ProfileStore "db"
 
-local function OnProfileLoaded(player, profile)
+local function OnProfileLoaded(player, profile) --placeholder. Change before final version
 end
 
 function DataService:LoadPlayerProfile(player)
-	local profile = PlayerStore:StartSessionAsync("Player_" .. player.UserId, {
+	local profile = PlayerStore:StartSessionAsync("Player_" .. player.UserId, { -- returns profile object
 		Cancel = function()
 			return player.Parent ~= Players
 		end,
-	})
+	}) 
 
 	if profile ~= nil then
 		profile:AddUserId(player.UserId)
 		profile:Reconcile()
 
-		profile.OnSessionEnd:Connect(function()
+		profile.OnSessionEnd:Connect(function() -- this will fire on a player leaving as well. Not a problem unless we push profiles for people still in game
 			self.Profiles[player] = nil
 			player:Kick("Data error occurred. Please rejoin.")
 		end)
