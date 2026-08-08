@@ -17,7 +17,7 @@ local BrainrotService
 
 local GameService = Knit.CreateService({
 	Name = "GameService",
-	ActiveMatch = nil,
+	ActiveMatch = nil, -- this only allows for one match per server. ActiveMatches = {} would allow for palyer map keying
 	Client = {
 		MatchStateChanged = Knit.CreateSignal(),
 		MatchTimelineUpdated = Knit.CreateSignal(),
@@ -27,31 +27,53 @@ local GameService = Knit.CreateService({
 		MatchCurrencyChanged = Knit.CreateSignal(),
 	},
 })
+function GameService:KnitStart()
+	ZombieService = Knit.GetService("ZombieService")
+	BrainrotService = Knit.GetService("BrainrotService")
 
-function GameService:CreateMatch(Player, MapName)
-	local Service = self
-	local Config = require(MapsFolder:FindFirstChild(MapName))
-	local Area = Workspace:FindFirstChild(Config.Area)
+	local StartButton = Workspace:WaitForChild("StartButton")
+	local ClickDetector = StartButton:FindFirstChildWhichIsA("ClickDetector", true)
+	if ClickDetector then
+		ClickDetector.MouseClick:Connect(function(Player)
+			self:StartMatch(Player, "TestMap")
+		end)
+	end
+
+	Players.PlayerRemoving:Connect(function(Player)
+		if self.ActiveMatch and self.ActiveMatch.Player == Player then
+			self:EndMatch()
+		end
+	end)
+end
+
+function GameService:CreateMatch(Player, MapName) --for now, MapName = "TestMap"
+	local Service = self -- GameService
+	local Config = require(MapsFolder:FindFirstChild(MapName)) --MapsFolder is contained within ReplicatedStorage
+	local Area = Workspace:FindFirstChild(Config.Area) -- "TestingGameArea"
 	local CurrencyConfig = require(GamemodesFolder:FindFirstChild(Config.Gamemode)).Currency
-
+	
 	local BrainrotsFolder = Instance.new("Folder")
 	BrainrotsFolder.Name = "Brainrots"
 	BrainrotsFolder.Parent = Area
 
-	local EndZ = Area.PlayerSpawns:GetChildren()[1].Position.Z
+	local PlayerSpawns = Area.PlayerSpawns:GetChildren()
 	local ZombieSpawns = Area.ZombieSpawns:GetChildren()
+	local ZombieStart = ZombieSpawns[1].Position
+	local ZombieEnd = PlayerSpawns[1].Position
+
 	local AttackForward = Vector3.new(0, 0, 1)
 	if #ZombieSpawns > 0 then
-		local SpawnZ = ZombieSpawns[1].Position.Z
-		AttackForward = Vector3.new(0, 0, if SpawnZ > EndZ then 1 else -1)
+		AttackForward = ((ZombieStart - ZombieEnd) * Vector3.new(1, 0, 1)).Unit
 	end
 
 	local Match = {
 		Player = Player,
+		PlayerSpawns = PlayerSpawns, --Passes PlayerSpawns children back to startmatch
 		Config = Config,
 		Area = Area,
 		BrainrotsFolder = BrainrotsFolder,
-		EndZ = EndZ,
+		ZombieStart = ZombieStart,
+		ZombieEnd = ZombieEnd,
 		AttackForward = AttackForward,
 		Wave = 0,
 		Phase = "Idle",
@@ -239,10 +261,11 @@ function GameService:StartMatch(Player, MapName)
 	if not Root then return end
 
 	local Match = self:CreateMatch(Player, MapName)
+	if not Match then return end
 	self.ActiveMatch = Match
 
-	local Spawn = Match.Area.PlayerSpawns:GetChildren()[1]
-	Root.CFrame = Spawn.CFrame + Vector3.new(0, 3, 0)
+	Root.CFrame = Match.PlayerSpawns[1].CFrame + Vector3.new(0, 3, 0) --spawns at only the middle square for now
+
 
 	Match:NotifyState()
 	Match:NotifySpeed()
@@ -295,25 +318,6 @@ end
 
 function GameService.Client:CycleSpeed(Player)
 	self.Server:RequestCycleSpeed(Player)
-end
-
-function GameService:KnitStart()
-	ZombieService = Knit.GetService("ZombieService")
-	BrainrotService = Knit.GetService("BrainrotService")
-
-	local StartButton = Workspace:WaitForChild("StartButton")
-	local ClickDetector = StartButton:FindFirstChildWhichIsA("ClickDetector", true)
-	if ClickDetector then
-		ClickDetector.MouseClick:Connect(function(Player)
-			self:StartMatch(Player, "TestMap")
-		end)
-	end
-
-	Players.PlayerRemoving:Connect(function(Player)
-		if self.ActiveMatch and self.ActiveMatch.Player == Player then
-			self:EndMatch()
-		end
-	end)
 end
 
 return GameService

@@ -50,8 +50,7 @@ function ZombieService:SpawnZombie(Match, WaveState, SpawnPart, Speed, ModelName
 	Match.NextZombieId += 1
 
 	local SpawnPosition = SpawnPart.Position
-	local TargetZ = Match.EndZ
-	local Direction = Vector3.new(0, 0, if TargetZ < SpawnPosition.Z then -1 else 1)
+	local Direction = -Match.AttackForward
 	local _, Yaw = CFrame.lookAt(Vector3.zero, Direction):ToOrientation()
 	local Lane = Lanes.Resolve(SpawnPart)
 
@@ -62,7 +61,6 @@ function ZombieService:SpawnZombie(Match, WaveState, SpawnPart, Speed, ModelName
 		Position = SpawnPosition,
 		Direction = Direction,
 		Speed = Speed,
-		TargetZ = TargetZ,
 		WaveState = WaveState,
 		Lane = Lane,
 		Health = MaxHealth,
@@ -155,7 +153,7 @@ function ZombieService:KnitStart()
 		for Id, Zombie in Match.Zombies do
 			Zombie.Position += Zombie.Direction * Zombie.Speed * ScaledDt
 
-			if math.abs(Zombie.Position.Z - Zombie.TargetZ) <= REACHED_DISTANCE then
+			if (Zombie.Position - Match.ZombieEnd):Dot(Match.AttackForward) <= REACHED_DISTANCE then
 				ZombieService:DespawnZombie(Match, Id, "Leaked")
 				continue
 			end
