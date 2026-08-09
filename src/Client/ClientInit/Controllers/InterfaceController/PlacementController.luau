@@ -49,10 +49,10 @@ local function PopulateUnits()
 		end
 	end
 
-	local OwnedBrainrots = DataService:GetOwnedBrainrots():expect()
-	local DisplayNames = BannerService:GetBrainrotDisplayNames():expect()
+	local OwnedPlants = DataService:GetOwnedPlants():expect()
+	local DisplayNames = BannerService:GetPlantDisplayNames():expect()
 
-	for Uuid, Entry in OwnedBrainrots do
+	for Uuid, Entry in OwnedPlants do
 		local UnitFrame = UnitTemplate:Clone()
 		UnitFrame.Visible = true
 		UnitFrame.BorderSizePixel = 0

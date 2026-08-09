@@ -81,7 +81,7 @@ function BannerService:GetActiveBannerData()
 		table.insert(Data, {
 			Name = Name,
 			DisplayName = Banner.DisplayName,
-			Brainrots = Banner.Brainrots
+			Plants = Banner.Plants
 		})
 	end
 
@@ -119,11 +119,11 @@ function BannerService:Roll(Player, BannerName, Amount)
 	Amount = math.clamp(tonumber(Amount) or 1, 1, MaxRollAmount)
 	local Rewards = {}
 	for _ = 1, Amount do
-		local Entry = WeightedSelect(Banner.Brainrots)
-		local IsDuplicate = DataService:OwnsBrainrot(Player, Entry.Name)
+		local Entry = WeightedSelect(Banner.Plants)
+		local IsDuplicate = DataService:OwnsPlant(Player, Entry.Name)
 		local Uuid
 		if not IsDuplicate then
-			Uuid = DataService:AddBrainrot(Player, Entry.Name)
+			Uuid = DataService:AddPlant(Player, Entry.Name)
 		end
 		table.insert(Rewards, {
 			Uuid = Uuid,
@@ -136,10 +136,10 @@ function BannerService:Roll(Player, BannerName, Amount)
 	return {Success = true, Rewards = Rewards}
 end
 
-function BannerService:GetBrainrotDisplayNames()
+function BannerService:GetPlantDisplayNames()
 	local DisplayNames = {}
 	for _, Banner in self.Banners do
-		for _, Entry in Banner.Brainrots do
+		for _, Entry in Banner.Plants do
 			DisplayNames[Entry.Name] = Entry.DisplayName
 		end
 	end
@@ -155,8 +155,8 @@ function BannerService.Client:GetTimeUntilNextRotation(Player)
 	return self.Server:GetTimeUntilNextRotation()
 end
 
-function BannerService.Client:GetBrainrotDisplayNames(Player)
-	return self.Server:GetBrainrotDisplayNames()
+function BannerService.Client:GetPlantDisplayNames(Player)
+	return self.Server:GetPlantDisplayNames()
 end
 
 function BannerService.Client:Roll(Player, BannerName, Amount)

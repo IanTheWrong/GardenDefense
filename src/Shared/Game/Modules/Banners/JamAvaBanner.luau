@@ -1,7 +1,7 @@
 return {
 	DisplayName = "Jam Ava",
 	
-	Brainrots = {
+	Plants = {
 		{Name = "Placeholder1", DisplayName = "Placeholder 1", Chance = 1},
 
 	}

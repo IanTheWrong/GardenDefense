@@ -11,7 +11,7 @@ local Template = require(script.DataTemplate)
 local DataService = Knit.CreateService {
 	Name = "DataService",
 	Client = {
-		OwnedBrainrotAdded = Knit.CreateSignal(),
+		OwnedPlantAdded = Knit.CreateSignal(),
 	},
 }
 
@@ -59,12 +59,12 @@ function DataService:GetProfile(player)
 	return self.Profiles[player]
 end
 
-function DataService:OwnsBrainrot(Player, BrainrotName)
+function DataService:OwnsPlant(Player, PlantName)
 	local Profile = self.Profiles[Player]
 	if not Profile then return false end
 
-	for _, Entry in Profile.Data.OwnedBrainrots do
-		if Entry.Name == BrainrotName then
+	for _, Entry in Profile.Data.OwnedPlants do
+		if Entry.Name == PlantName then
 			return true
 		end
 	end
@@ -72,31 +72,31 @@ function DataService:OwnsBrainrot(Player, BrainrotName)
 	return false
 end
 
-function DataService:AddBrainrot(Player, BrainrotName)
+function DataService:AddPlant(Player, PlantName)
 	local Profile = self.Profiles[Player]
 	if not Profile then return nil end
 
 	local Uuid = HttpService:GenerateGUID(false)
 	local Entry = {
-		Name = BrainrotName,
+		Name = PlantName,
 		Stats = {},
 	}
-	Profile.Data.OwnedBrainrots[Uuid] = Entry
+	Profile.Data.OwnedPlants[Uuid] = Entry
 
-	self.Client.OwnedBrainrotAdded:Fire(Player, Uuid, Entry)
+	self.Client.OwnedPlantAdded:Fire(Player, Uuid, Entry)
 
 	return Uuid
 end
 
-function DataService:GetOwnedBrainrots(Player)
+function DataService:GetOwnedPlants(Player)
 	local Profile = self.Profiles[Player]
 	if not Profile then return {} end
 
-	return Profile.Data.OwnedBrainrots
+	return Profile.Data.OwnedPlants
 end
 
-function DataService.Client:GetOwnedBrainrots(Player)
-	return self.Server:GetOwnedBrainrots(Player)
+function DataService.Client:GetOwnedPlants(Player)
+	return self.Server:GetOwnedPlants(Player)
 end
 
 function DataService:KnitStart()

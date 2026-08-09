@@ -3,8 +3,8 @@ local Projectile = require(script.Parent.Projectile)
 local StudioTestParams = require(script.Parent.Parent.StudioTestParams)
 
 local COLLISION_GROUPS = {
-	Zombie = { Own = "ZombieHurtbox", Opposing = "BrainrotHurtbox", OwnFolder = "ZombieHurtboxes", OpposingFolder = "BrainrotHurtboxes" },
-	Brainrot = { Own = "BrainrotHurtbox", Opposing = "ZombieHurtbox", OwnFolder = "BrainrotHurtboxes", OpposingFolder = "ZombieHurtboxes" },
+	Zombie = { Own = "ZombieHurtbox", Opposing = "PlantHurtbox", OwnFolder = "ZombieHurtboxes", OpposingFolder = "PlantHurtboxes" },
+	Plant = { Own = "PlantHurtbox", Opposing = "ZombieHurtbox", OwnFolder = "PlantHurtboxes", OpposingFolder = "ZombieHurtboxes" },
 }
 
 local EntityBase = {}

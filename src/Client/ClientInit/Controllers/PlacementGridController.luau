@@ -3,7 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
-local BrainrotModels = ReplicatedStorage.Game.Assets.Models.Brainrots
+local PlantModels = ReplicatedStorage.Game.Assets.Models.Plants
 local MaxUnitPlacements = require(ReplicatedStorage.Game.Modules.Maps.TestMap).MaxUnitPlacements
 
 local ValidColor = Color3.fromRGB(0, 255, 0)
@@ -14,7 +14,7 @@ local PlacementGridController = Knit.CreateController {
 }
 
 local PlacementGrid
-local BrainrotsFolder
+local PlantsFolder
 
 local PlacementService
 
@@ -54,9 +54,9 @@ local function GetGridPartUnderMouse()
 end
 
 local function IsCellOccupied(GridPart)
-	if not BrainrotsFolder then return false end
+	if not PlantsFolder then return false end
 
-	for _, Model in BrainrotsFolder:GetChildren() do
+	for _, Model in PlantsFolder:GetChildren() do
 		local Pivot = Model:GetPivot().Position
 		if math.abs(Pivot.X - GridPart.Position.X) < 1 and math.abs(Pivot.Z - GridPart.Position.Z) < 1 then
 			return true
@@ -67,10 +67,10 @@ local function IsCellOccupied(GridPart)
 end
 
 local function CountPlaced(Name)
-	if not BrainrotsFolder then return 0 end
+	if not PlantsFolder then return 0 end
 
 	local Count = 0
-	for _, Model in BrainrotsFolder:GetChildren() do
+	for _, Model in PlantsFolder:GetChildren() do
 		if Model.Name == Name then
 			Count += 1
 		end
@@ -99,7 +99,7 @@ local function HideHologram()
 end
 
 local function CreateHologram(Name)
-	local Source = BrainrotModels:FindFirstChild(Name)
+	local Source = PlantModels:FindFirstChild(Name)
 	if not Source then return nil end
 
 	local NewHologram = Source:Clone()
@@ -181,10 +181,10 @@ function PlacementGridController:KnitStart()
 
 	GameService.MatchStateChanged:Connect(function(State)
 		if State.Phase == "Idle" then
-			BrainrotsFolder = workspace.TestingGameArea:WaitForChild("Brainrots")
+			PlantsFolder = workspace.TestingGameArea:WaitForChild("Plants")
 		elseif State.Phase == "Ended" then
 			self:StopSession()
-			BrainrotsFolder = nil
+			PlantsFolder = nil
 		end
 	end)
 
@@ -193,7 +193,7 @@ function PlacementGridController:KnitStart()
 		if Input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
 		if not Hologram or not CurrentGridPart or not CurrentValid then return end
 
-		PlacementService:PlaceBrainrot(SelectedUuid, CurrentGridPart)
+		PlacementService:PlacePlant(SelectedUuid, CurrentGridPart)
 	end)
 end
 

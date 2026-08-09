@@ -3,11 +3,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Knit = require(ReplicatedStorage.Game.Knit.Knit)
 local Lanes = require(ReplicatedStorage.Game.Modules.Combat.Lanes)
 
-local BrainrotModels = ReplicatedStorage.Game.Assets.Models.Brainrots
+local PlantModels = ReplicatedStorage.Game.Assets.Models.Plants
 
 local GameService
 local DataService
-local BrainrotService
+local PlantService
 
 local PlacementService = Knit.CreateService {
 	Name = "PlacementService",
@@ -24,7 +24,7 @@ local function GetSurfaceCFrame(GridPart)
 	return GridPart.CFrame * CFrame.new(0, GridPart.Size.Y / 2, 0)
 end
 
-function PlacementService:PlaceBrainrot(Player, Uuid, GridPart)
+function PlacementService:PlacePlant(Player, Uuid, GridPart)
 	local Match = GameService:GetActiveMatch()
 	if not Match or Match.Player ~= Player then return false end
 	if Match.Paused then return false end
@@ -33,37 +33,37 @@ function PlacementService:PlaceBrainrot(Player, Uuid, GridPart)
 	if Match.OccupiedCells[GridPart] then return false end
 	if not Lanes.Resolve(GridPart) then return false end
 
-	local OwnedBrainrots = DataService:GetOwnedBrainrots(Player)
-	local Entry = OwnedBrainrots[Uuid]
+	local OwnedPlants = DataService:GetOwnedPlants(Player)
+	local Entry = OwnedPlants[Uuid]
 	if not Entry then return false end
 
 	local PlacedCount = Match.PlacementCounts[Uuid] or 0
 	if PlacedCount >= Match.Config.MaxUnitPlacements then return false end
 
-	local Source = BrainrotModels:FindFirstChild(Entry.Name)
+	local Source = PlantModels:FindFirstChild(Entry.Name)
 	if not Source then return false end
 
 	local Model = Source:Clone()
 	local FootOffset = GetFootOffset(Model)
 	Model:PivotTo(GetSurfaceCFrame(GridPart) * CFrame.new(0, -FootOffset, 0))
-	Model.Parent = Match.BrainrotsFolder
+	Model.Parent = Match.PlantsFolder
 
 	Match.OccupiedCells[GridPart] = Model
 	Match.PlacementCounts[Uuid] = PlacedCount + 1
 
-	BrainrotService:RegisterBrainrot(Match, Model, Entry.Name, GridPart)
+	PlantService:RegisterPlant(Match, Model, Entry.Name, GridPart)
 
 	return true
 end
 
-function PlacementService.Client:PlaceBrainrot(Player, Uuid, GridPart)
-	return self.Server:PlaceBrainrot(Player, Uuid, GridPart)
+function PlacementService.Client:PlacePlant(Player, Uuid, GridPart)
+	return self.Server:PlacePlant(Player, Uuid, GridPart)
 end
 
 function PlacementService:KnitStart()
 	GameService = Knit.GetService("GameService")
 	DataService = Knit.GetService("DataService")
-	BrainrotService = Knit.GetService("BrainrotService")
+	PlantService = Knit.GetService("PlantService")
 end
 
 return PlacementService

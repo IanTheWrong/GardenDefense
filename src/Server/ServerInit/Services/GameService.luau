@@ -13,7 +13,7 @@ local Currency = require(ReplicatedStorage.Game.Modules.Currency)
 local SpeedSteps = {1, 1.5, 2, 4}
 
 local ZombieService
-local BrainrotService
+local PlantService
 
 local GameService = Knit.CreateService({
 	Name = "GameService",
@@ -29,7 +29,7 @@ local GameService = Knit.CreateService({
 })
 function GameService:KnitStart()
 	ZombieService = Knit.GetService("ZombieService")
-	BrainrotService = Knit.GetService("BrainrotService")
+	PlantService = Knit.GetService("PlantService")
 
 	local StartButton = Workspace:WaitForChild("StartButton")
 	local ClickDetector = StartButton:FindFirstChildWhichIsA("ClickDetector", true)
@@ -52,9 +52,9 @@ function GameService:CreateMatch(Player, MapName) --for now, MapName = "TestMap"
 	local Area = Workspace:FindFirstChild(Config.Area) -- "TestingGameArea"
 	local CurrencyConfig = require(GamemodesFolder:FindFirstChild(Config.Gamemode)).Currency
 	
-	local BrainrotsFolder = Instance.new("Folder")
-	BrainrotsFolder.Name = "Brainrots"
-	BrainrotsFolder.Parent = Area
+	local PlantsFolder = Instance.new("Folder")
+	PlantsFolder.Name = "Plants"
+	PlantsFolder.Parent = Area
 
 	local PlayerSpawns = Area.PlayerSpawns:GetChildren()
 	local ZombieSpawns = Area.ZombieSpawns:GetChildren()
@@ -71,7 +71,7 @@ function GameService:CreateMatch(Player, MapName) --for now, MapName = "TestMap"
 		PlayerSpawns = PlayerSpawns, --Passes PlayerSpawns children back to startmatch
 		Config = Config,
 		Area = Area,
-		BrainrotsFolder = BrainrotsFolder,
+		PlantsFolder = PlantsFolder,
 		ZombieStart = ZombieStart,
 		ZombieEnd = ZombieEnd,
 		AttackForward = AttackForward,
@@ -84,8 +84,8 @@ function GameService:CreateMatch(Player, MapName) --for now, MapName = "TestMap"
 		Currency = CurrencyConfig.StartingAmount,
 		Zombies = {},
 		NextZombieId = 0,
-		PlacedBrainrots = {},
-		NextBrainrotId = 0,
+		PlacedPlants = {},
+		NextPlantId = 0,
 		OccupiedCells = {},
 		PlacementCounts = {},
 		WaveButtonVisible = false,
@@ -232,11 +232,11 @@ function GameService:CreateMatch(Player, MapName) --for now, MapName = "TestMap"
 
 	function Match:Cleanup()
 		ZombieService:ClearMatch(self)
-		BrainrotService:ClearMatch(self)
+		PlantService:ClearMatch(self)
 
-		if self.BrainrotsFolder then
-			self.BrainrotsFolder:Destroy()
-			self.BrainrotsFolder = nil
+		if self.PlantsFolder then
+			self.PlantsFolder:Destroy()
+			self.PlantsFolder = nil
 		end
 		table.clear(self.OccupiedCells)
 		table.clear(self.PlacementCounts)

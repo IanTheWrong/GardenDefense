@@ -1,5 +1,5 @@
 local Data = {
-	OwnedBrainrots = {},
+	OwnedPlants = {},
 }
 
 return Data

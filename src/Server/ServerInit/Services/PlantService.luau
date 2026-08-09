@@ -5,18 +5,18 @@ local PhysicsService = game:GetService("PhysicsService")
 local Knit = require(ReplicatedStorage.Game.Knit.Knit)
 local EntityBase = require(ReplicatedStorage.Game.Modules.Combat.EntityBase)
 local Lanes = require(ReplicatedStorage.Game.Modules.Combat.Lanes)
-local BrainrotTypes = require(ReplicatedStorage.Game.Modules.BrainrotTypes)
+local PlantTypes = require(ReplicatedStorage.Game.Modules.PlantTypes)
 
-local BehaviorsFolder = ReplicatedStorage.Game.Modules.Brainrots
-local HURTBOX_COLLISION_GROUP = "BrainrotHurtbox"
+local BehaviorsFolder = ReplicatedStorage.Game.Modules.Plants
+local HURTBOX_COLLISION_GROUP = "PlantHurtbox"
 
 local BehaviorCache = {}
 local HurtboxFolder
 
 local GameService
 
-local BrainrotService = Knit.CreateService {
-	Name = "BrainrotService",
+local PlantService = Knit.CreateService {
+	Name = "PlantService",
 }
 
 local function GetBehaviors(TypeKey)
@@ -56,23 +56,23 @@ local function DefaultAttack(Entity, Dt, Match)
 	Target:TakeDamage(Entity.Stats.Damage or 0)
 end
 
-function BrainrotService:RegisterBrainrot(Match, Model, TypeKey, GridPart)
-	local Stats = BrainrotTypes[TypeKey]
+function PlantService:RegisterPlant(Match, Model, TypeKey, GridPart)
+	local Stats = PlantTypes[TypeKey]
 	if not Stats then return nil end
 
-	local Id = Match.NextBrainrotId
-	Match.NextBrainrotId += 1
+	local Id = Match.NextPlantId
+	Match.NextPlantId += 1
 
 	local Behaviors = GetBehaviors(TypeKey)
 	local Position = Model:GetPivot().Position
 	local Lane = GridPart and Lanes.Resolve(GridPart)
-	local Entity = EntityBase.New("Brainrot", Id, Position, Stats, Behaviors, Lane, Match.AttackForward)
+	local Entity = EntityBase.New("Plant", Id, Position, Stats, Behaviors, Lane, Match.AttackForward)
 	Entity.Model = Model
 
 	Entity:CreateHurtbox(GetHurtboxSize(Model, Stats))
 	Entity.HurtboxPart.Parent = HurtboxFolder
 
-	Match.PlacedBrainrots[Id] = Entity
+	Match.PlacedPlants[Id] = Entity
 	Model:SetAttribute("EntityID", Id)
 
 	Entity:RunFunc("OnPlaced", Match)
@@ -80,32 +80,32 @@ function BrainrotService:RegisterBrainrot(Match, Model, TypeKey, GridPart)
 	return Entity
 end
 
-function BrainrotService:UnregisterBrainrot(Match, Id)
-	local Entity = Match.PlacedBrainrots[Id]
+function PlantService:UnregisterPlant(Match, Id)
+	local Entity = Match.PlacedPlants[Id]
 	if not Entity then return end
 
-	Match.PlacedBrainrots[Id] = nil
+	Match.PlacedPlants[Id] = nil
 	Entity:RunFunc("OnRemoved", Match)
 	Entity:Destroy()
 end
 
-function BrainrotService:ClearMatch(Match)
+function PlantService:ClearMatch(Match)
 	if HurtboxFolder then
 		HurtboxFolder:ClearAllChildren()
 	end
 
-	table.clear(Match.PlacedBrainrots)
+	table.clear(Match.PlacedPlants)
 end
 
-function BrainrotService:KnitInit()
+function PlantService:KnitInit()
 	pcall(PhysicsService.RegisterCollisionGroup, PhysicsService, HURTBOX_COLLISION_GROUP)
 end
 
-function BrainrotService:KnitStart()
+function PlantService:KnitStart()
 	GameService = Knit.GetService("GameService")
 
 	HurtboxFolder = Instance.new("Folder")
-	HurtboxFolder.Name = "BrainrotHurtboxes"
+	HurtboxFolder.Name = "PlantHurtboxes"
 	HurtboxFolder.Parent = workspace
 
 	RunService.Heartbeat:Connect(function(Dt)
@@ -114,7 +114,7 @@ function BrainrotService:KnitStart()
 
 		local ScaledDt = Dt * Match.SpeedMultiplier
 
-		for _, Entity in Match.PlacedBrainrots do
+		for _, Entity in Match.PlacedPlants do
 			if Entity.Functions.Heartbeat then
 				Entity:RunFunc("Heartbeat", ScaledDt, Match)
 			else
@@ -124,4 +124,4 @@ function BrainrotService:KnitStart()
 	end)
 end
 
-return BrainrotService
+return PlantService
