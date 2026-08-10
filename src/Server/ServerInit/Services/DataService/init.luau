@@ -39,7 +39,7 @@ function DataService:LoadPlayerProfile(player)
 
 		if player.Parent == Players then
 			self.Profiles[player] = profile
-			OnProfileLoaded(player, profile)
+			OnProfileLoaded(player, profile) -- called the placeholder function from above
 		else
 			profile:EndSession()
 		end
